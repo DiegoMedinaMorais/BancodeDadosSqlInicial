@@ -12,56 +12,57 @@ ORDER BY
 
 -- comando para listar o bando de dados atual
 SELECT
-    DB_NAME() AS BancoAtual;
+    DB_NAME () AS BancoAtual;
 
-CREATE TABLE Professores (
-    IdProfessor INT IDENTITY (1, 1) PRIMARY KEY,
-    Nome VARCHAR (100) NOT NULL,
-    Email VARCHAR (100) NOT NULL UNIQUE,
-    -- unique para nao permitir emails duplicados
-    Especialidade VARCHAR (100) NOT NULL
-);
+CREATE TABLE
+    Professores (
+        IdProfessor INT IDENTITY (1, 1) PRIMARY KEY,
+        Nome VARCHAR(100) NOT NULL,
+        Email VARCHAR(100) NOT NULL UNIQUE,
+        -- unique para nao permitir emails duplicados
+        Especialidade VARCHAR(100) NOT NULL
+    );
 
-CREATE TABLE Cursos (
-    IdCurso INT IDENTITY (1, 1) PRIMARY KEY,
-    -- identity para auto incrementar o IdCurso
-    NomeCurso VARCHAR (100) NOT NULL UNIQUE,
-    -- unique para nao permitir cursos duplicados
-    CargaHoraria INT NOT NULL CHECK (
-        CargaHoraria > 0
-        AND CargaHoraria <= 200
-    ),
-    -- check para validar a carga horaria
-    IdProfessor INT NOT NULL,
-    Ativo BIT DEFAULT 1 NOT NULL,
-    -- default para definir o valor padrao como 1 (ativo)
-    CONSTRAINT FK_Cursos_Professores FOREIGN KEY (IdProfessor) REFERENCES Professores (IdProfessor) -- constraint para criar a chave estrangeira
-);
+CREATE TABLE
+    Cursos (
+        IdCurso INT IDENTITY (1, 1) PRIMARY KEY,
+        -- identity para auto incrementar o IdCurso
+        NomeCurso VARCHAR(100) NOT NULL UNIQUE,
+        -- unique para nao permitir cursos duplicados
+        CargaHoraria INT NOT NULL CHECK (
+            CargaHoraria > 0
+            AND CargaHoraria <= 200
+        ),
+        -- check para validar a carga horaria
+        IdProfessor INT NOT NULL,
+        Ativo BIT DEFAULT 1 NOT NULL,
+        -- default para definir o valor padrao como 1 (ativo)
+        CONSTRAINT FK_Cursos_Professores FOREIGN KEY (IdProfessor) REFERENCES Professores (IdProfessor) -- constraint para criar a chave estrangeira
+    );
 
-CREATE TABLE Alunos (
-    IdAluno INT IDENTITY (1, 1) PRIMARY KEY,
-    Nome VARCHAR (100) NOT NULL,
-    Email VARCHAR (100) NOT NULL UNIQUE,
-    Turma VARCHAR (50) NOT NULL,
-    DataNascimento DATE NOT NULL,
-    Ativo BIT CONSTRAINT DF_Alunos_Ativo DEFAULT 1 NOT NULL
-);
+CREATE TABLE
+    Alunos (
+        IdAluno INT IDENTITY (1, 1) PRIMARY KEY,
+        Nome VARCHAR(100) NOT NULL,
+        Email VARCHAR(100) NOT NULL UNIQUE,
+        Turma VARCHAR(50) NOT NULL,
+        DataNascimento DATE NOT NULL,
+        Ativo BIT CONSTRAINT DF_Alunos_Ativo DEFAULT 1 NOT NULL
+    );
 
-CREATE TABLE Matriculas (
-    IdMatricula INT IDENTITY (1, 1) PRIMARY KEY,
-    IdAluno INT NOT NULL,
-    IdCurso INT NOT NULL,
-    DataMatricula DATE CONSTRAINT DF_Matriculas_Data DEFAULT (CONVERT (DATE, GETDATE())) NOT NULL,
-    NotaFinal DECIMAL (4, 2) NULL CHECK (
-        NotaFinal BETWEEN 0
-        AND 10
-    ),
-    StatusMatricula VARCHAR (20) CONSTRAINT DF_Matricula_Status DEFAULT 'Ativa' NOT NULL,
-    CONSTRAINT UQ_Matriculas_AlunoCurso UNIQUE (IdAluno, IdCurso),
-    -- unique para nao permitir que um aluno se matricule no mesmo curso mais de uma vez
-    CONSTRAINT FK_Matriculas_Alunos FOREIGN KEY (IdAluno) REFERENCES Alunos (IdAluno),
-    CONSTRAINT FK_Matriculas_Cursos FOREIGN KEY (IdCurso) REFERENCES Cursos (IdCurso)
-);
+CREATE TABLE
+    Matriculas (
+        IdMatricula INT IDENTITY (1, 1) PRIMARY KEY,
+        IdAluno INT NOT NULL,
+        IdCurso INT NOT NULL,
+        DataMatricula DATE CONSTRAINT DF_Matriculas_Data DEFAULT (CONVERT(DATE, GETDATE ())) NOT NULL,
+        NotaFinal DECIMAL(4, 2) NULL CHECK (NotaFinal BETWEEN 0 AND 10),
+        StatusMatricula VARCHAR(20) CONSTRAINT DF_Matricula_Status DEFAULT 'Ativa' NOT NULL,
+        CONSTRAINT UQ_Matriculas_AlunoCurso UNIQUE (IdAluno, IdCurso),
+        -- unique para nao permitir que um aluno se matricule no mesmo curso mais de uma vez
+        CONSTRAINT FK_Matriculas_Alunos FOREIGN KEY (IdAluno) REFERENCES Alunos (IdAluno),
+        CONSTRAINT FK_Matriculas_Cursos FOREIGN KEY (IdCurso) REFERENCES Cursos (IdCurso)
+    );
 
 INSERT INTO
     Professores (Nome, Email, Especialidade)
@@ -88,11 +89,7 @@ VALUES
     );
 
 INSERT INTO
-    Cursos (
-        NomeCurso,
-        CargaHoraria,
-        IdProfessor
-    )
+    Cursos (NomeCurso, CargaHoraria, IdProfessor)
 VALUES
     ('Banco de Dados Inicial', 40, 1),
     ('SQL Server Essencial', 36, 1),
@@ -102,12 +99,7 @@ VALUES
     ('Fundamentos de Redes', 24, 4);
 
 INSERT INTO
-    Alunos (
-        Nome,
-        Email,
-        Turma,
-        DataNascimento
-    )
+    Alunos (Nome, Email, Turma, DataNascimento)
 VALUES
     (
         'Alice Pereira',
@@ -328,3 +320,213 @@ FROM
     Alunos
 WHERE
     Nome LIKE '%es' -- ou seja, selecione os nomes e emails dos alunos onde o email termina com '@escola.com'
+    -- update: atualiza os dados de uma tabela. a sintaxe basica é: UPDATE nome_da_tabela  SET nome_da_coluna = novo_valor WHERE condicao
+    -- corrigir a turma de um aluno especifico
+UPDATE Alunos
+SET
+    Turma = '2INFO-C'
+WHERE
+    IdAluno = 3;
+
+SELECT
+    *
+FROM
+    Alunos;
+
+UPDATE Matriculas
+SET
+    NotaFinal = 8.75,
+    StatusMatricula = 'Concluída'
+WHERE
+    IdAluno = 2
+    AND IdCurso = 3;
+
+SELECT
+    *
+FROM
+    Alunos;
+
+SELECT
+    *
+FROM
+    Matriculas;
+
+SELECT
+    *
+FROM
+    Matriculas
+WHERE
+    IdAluno = 2
+    AND IdCurso = 3;
+
+-- desativar
+UPDATE Alunos
+SET
+    Ativo = 0
+WHERE
+    Turma = '2INFO-B'
+SELECT
+    *
+FROM
+    Alunos;
+
+-- ativar
+UPDATE Alunos
+SET
+    Ativo = 1
+WHERE
+    Turma = '2INFO-B' -- delete:  exclui registros de uma tabela. a sintaxe basica é: DELETE FROM nome_da_tabela WHERE condicao
+INSERT INTO
+    Alunos (Nome, Email, Turma, DataNascimento)
+VALUES
+    (
+        'Aluno de Teste',
+        'teste.remover@escola.com',
+        '2INFO-A',
+        '2008-01-01'
+    );
+
+SELECT
+    *
+FROM
+    Alunos
+WHERE
+    Email = 'teste.remover@escola.com';
+
+SELECT
+    *
+FROM
+    Alunos
+DELETE FROM Alunos
+WHERE
+    Email = 'teste.remover @escola.com'
+SELECT
+    *
+FROM
+    Alunos -- funcoes de texto e data
+SELECT
+    Nome,
+    UPPER(Nome) AS NomeEmMaisculo,
+    LOWER(Nome) AS NomeEmMinusculo,
+    LEN (Nome) AS QuantidadeDeCaracteres,
+    CONCAT (Nome, ' - ', Turma) AS NomeTurma,
+    FORMAT (DataNascimento, 'dd/MM/yyyy') AS DataNascimentoFormatado,
+    DATEDIFF (YEAR, DataNascimento, GETDATE ()) AS IdadeAproximada
+FROM
+    Alunos;
+
+-- funcoes de calculo e agrupamento
+-- quantidade de alunos
+SELECT
+    COUNT(*) AS QuantidadeDeAlunos
+FROM
+    Alunos;
+
+-- quantidade de matriculas que ja possuem nota final
+SELECT
+    COUNT(NotaFinal) AS QuantidadeDeMatriculasComNota
+FROM
+    Matriculas;
+
+-- media, maior e menor nota. obs: dados null nao sao considerados nos calculos
+SELECT
+    AVG(NotaFinal) AS MediaDasNotas,
+    MAX(NotaFinal) AS MaiorNota,
+    MIN(NotaFinal) AS MenorNota
+FROM
+    Matriculas;
+
+-- troca null por um texto para exibir o resultado de forma mais clara
+SELECT
+    IdMatricula,
+    ISNULL (CONVERT(VARCHAR(10), NotaFinal), 'Sem Nota') AS NotaFinal,
+    StatusMatricula
+FROM
+    Matriculas;
+
+-- group by e having: agrupa os registros por uma ou mais colunas e permite filtrar os grupos com base em uma condicao
+-- quantos alunos estao matriculados em cada turma
+SELECT
+    Turma,
+    COUNT(*) AS QuantidadeDeAlunos
+FROM
+    Alunos
+GROUP BY
+    Turma
+GROUP BY
+    QuantidadeDeAlunos DESC;
+
+-- ordena o resultado pela quantidade de matriculas em ordem decrescente
+-- cursos que tem 2 ou mais matriculas
+SELECT
+    IdCurso,
+    COUNT(*) AS QuantidadeDeMatriculas
+FROM
+    Matriculas
+GROUP BY
+    IdCurso
+HAVING
+    COUNT(*) >= 2 -- filtra os cursos que tem duas ou mais matriculas
+ORDER BY
+    QuantidadeDeMatriculas DESC;
+    
+-- inner join: retorna apenas os registros que tem correspondecia em ambas as tabelas
+SELECT
+    -- 1 passo, definir os dados que serao mostrados e como serao mostrados
+    a.Nome AS NomeDoAluno,
+    c.NomeCurso AS NomeDoCurso,
+    m.NotaFinal,
+    m.StatusMatricula -- 2 passo, cruzar dados
+FROM
+    Matriculas AS m
+    INNER JOIN Alunos AS a ON m.IdAluno = a.IdAluno -- relaciona a tabela matriculas com a tabela alunos
+    INNER JOIN Cursos AS c ON m.IdCurso = c.IdCurso -- relaciona a tabela matriculas com a tabela cursos
+    -- 3 passom, como resultado sera organizado
+ORDER BY
+    a.Nome -- ordena o resultado pelo nome do aluno
+
+-- join com 4 tabelas
+SELECT
+    a.Nome AS Aluno,
+    a.Turma,
+    c.NomeCurso AS Curso,
+    p.Nome AS Professor,
+    m.NotaFinal,
+    m.StatusMatricula
+FROM
+    Matriculas AS m
+    INNER JOIN Alunos AS a ON m.IdAluno = a.IdAluno
+    INNER JOIN Cursos AS c ON m.IdCurso = c.idCurso
+    INNER JOIN Professores AS p ON c.IdProfessor = p.IdProfessor
+ORDER BY
+    p.Nome,
+    c.NomeCurso,
+    a.Nome
+
+
+SELECT
+    a.Nome AS NomeDoAluno,
+    c.NomeCurso AS NomeDoCurso,
+    m.NotaFinal,
+    m.StatusMatricula
+FROM
+    Alunos AS a
+    LEFT JOIN Matriculas AS m ON a.IdAluno = m.IdAluno
+    LEFT JOIN Cursos AS c ON m.IdCurso = c.IdCurso
+WHERE
+    m.IdMatricula IS NULL 
+    
+-- join com filtro e media por curso. retorna a media das notas finais por curso considerando apenas os alunos que possuem matricula
+SELECT
+    c.NomeCurso AS Curso,
+    COUNT(m.IdMatricula) AS TotalDeMatriculas,
+    AVG(m.NotaFinal) AS MediaDoCurso
+FROM
+    Cursos AS c
+    LEFT JOIN Matriculas AS m ON c.IdCurso = m.IdCurso
+WHERE
+    m.NotaFinal IS NOT NULL
+GROUP BY
+    c.NomeCurso
+ORDER BY
+    c.NomeCurso
